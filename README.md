@@ -36,7 +36,22 @@
 ✓ Network statistics and monitoring  
 ✓ Integration with OpenClaw's `web_fetch` tool  
 
-✗ **NOT included:** Creating DIDs, issuing credentials (requires local node)
+✗ **NOT included:** Creating DIDs, issuing credentials, vaults (requires local node)
+
+---
+
+## Full Functionality (Local Node)
+
+This skill provides public API access only. For full Archon capabilities (create DIDs, issue credentials, manage vaults, sign documents), run a local Archon node:
+
+🔧 **[Install Archon locally](https://github.com/archetech/archon)** — Docker-based, includes keymaster + gatekeeper
+
+With a local node, you can:
+- Create and manage your own DIDs
+- Issue verifiable credentials
+- Store encrypted data in vaults
+- Sign files with cryptographic proofs
+- Integrate with HexMem for identity backups
 
 ---
 
