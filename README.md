@@ -82,5 +82,25 @@ With a local node, you can:
 
 ---
 
+## Verification
+
+All commits are signed with Archon DID:
+```
+did:cid:bagaaieratn3qejd6mr4y2bk3nliriafoyeftt74tkl7il6bbvakfdupahkla
+```
+
+The `manifest.json` file contains SHA256 hashes of all repo files, cryptographically signed. Verify with:
+
+```bash
+npx @didcid/keymaster verify-file manifest.json
+```
+
+To regenerate after changes (requires ARCHON_PASSPHRASE):
+```bash
+./scripts/sign-repo.sh
+```
+
+---
+
 **Status:** ✓ Tested and working (2026-02-02)  
 **Network:** 153 DIDs (52 agents, 101 assets)
