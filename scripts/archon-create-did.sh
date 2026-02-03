@@ -9,7 +9,11 @@ NAME="${1:?Usage: $0 <name> <type>}"
 TYPE="${2:-agent}"
 
 export ARCHON_CONFIG_DIR="$HOME/.config/hex/archon"
-export ARCHON_PASSPHRASE="hex-daemon-lightning-hive-2026"
+# Passphrase must be set in environment (never hardcode!)
+if [ -z "$ARCHON_PASSPHRASE" ]; then
+    echo "Error: ARCHON_PASSPHRASE environment variable not set" >&2
+    exit 1
+fi
 
 cd "$ARCHON_CONFIG_DIR" || exit 1
 

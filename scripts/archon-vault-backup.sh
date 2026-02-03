@@ -1,6 +1,6 @@
 #!/bin/bash
 # Backup file to Archon vault
-# Usage: archon-vault-backup.sh <vault-name> <file-path> <key>
+# Usage: archon-vault-backup.sh <vault-name> <file-path>
 
 set -e
 
@@ -8,9 +8,8 @@ set -e
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "$SCRIPT_DIR/detect-platform.sh"
 
-VAULT_NAME="${1:?Usage: $0 <vault-name> <file-path> <key>}"
+VAULT_NAME="${1:?Usage: $0 <vault-name> <file-path>}"
 FILE_PATH="${2:?}"
-KEY="${3:?}"
 
 # Convert to absolute path before cd
 FILE_PATH=$(realpath "$FILE_PATH")
@@ -20,34 +19,23 @@ if [ ! -f "$FILE_PATH" ]; then
     exit 1
 fi
 
-export ARCHON_CONFIG_DIR="$HOME/.config/hex/archon"
-export ARCHON_PASSPHRASE="hex-daemon-lightning-hive-2026"
+# Passphrase must be set in environment (never hardcode!)
+if [ -z "$ARCHON_PASSPHRASE" ]; then
+    echo "Error: ARCHON_PASSPHRASE environment variable not set" >&2
+    exit 1
+fi
+
+export ARCHON_CONFIG_DIR="${ARCHON_CONFIG_DIR:-$HOME/.config/hex/archon}"
 
 cd "$ARCHON_CONFIG_DIR" || exit 1
 
-TIMESTAMP=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
 FILESIZE=$($STAT_SIZE "$FILE_PATH")
 CHECKSUM=$($CHECKSUM_CMD "$FILE_PATH" | awk '{print $1}')
 
-METADATA=$(jq -n \
-  --arg ts "$TIMESTAMP" \
-  --arg size "$FILESIZE" \
-  --arg sha256 "$CHECKSUM" \
-  --arg original "$FILE_PATH" \
-  '{timestamp: $ts, size: $size, sha256: $sha256, original_path: $original}')
-
 echo "Backing up to vault: $VAULT_NAME"
 echo "  File: $FILE_PATH ($FILESIZE bytes)"
-echo "  Key: $KEY"
 echo "  SHA256: $CHECKSUM"
 
-# Read file content as base64 for binary safety
-CONTENT=$(base64 < "$FILE_PATH")
-
-npx @didcid/keymaster vault-put \
-  --vault-id "$VAULT_NAME" \
-  --key "$KEY" \
-  --value "$CONTENT" \
-  --metadata "$METADATA"
+keymaster add-vault-item "$VAULT_NAME" "$FILE_PATH"
 
 echo "✓ Backup complete"
